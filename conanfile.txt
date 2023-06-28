@@ -1,0 +1,6 @@
+[requires]
+libvips/8.14.2
+
+[generators]
+CMakeToolchain
+CMakeDeps
