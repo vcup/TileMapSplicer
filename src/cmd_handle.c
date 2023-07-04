@@ -7,13 +7,23 @@ struct arg_lit *help;
 struct arg_file *input_dir, *output_dir;
 struct arg_end *end;
 
-int valid_dir(struct arg_file *path) {
+int valid_input_dir(struct arg_file *path) {
     if (path->count == 0) return 0;
 
     struct stat dirStat;
     int ret = stat(path->filename[0], &dirStat);
     if (ret < 0) return TMS_ERR_PATH_STAT_ERR;
     if (S_ISDIR(dirStat.st_mode)) return 0;
+
+    return TMS_ERR_PATH_IS_NOT_DIR;
+}
+int valid_output_dir(struct arg_file *path) {
+    if (path->count == 0) return 0;
+
+    struct stat dirStat;
+    int ret = stat(path->filename[0], &dirStat);
+    if (ret < 0 && errno != ENOENT) return TMS_ERR_PATH_STAT_ERR;
+    if (errno == ENOENT || S_ISDIR(dirStat.st_mode)) return 0;
 
     return TMS_ERR_PATH_IS_NOT_DIR;
 }
@@ -45,9 +55,9 @@ void dir_error(struct arg_file *path, arg_dstr_t ds, int error, const char* argv
 }
 
 int init_cmd_handle(int argc, char **argv, void **args_table) {
-    input_dir->hdr.checkfn = (arg_checkfn*)valid_dir;
+    input_dir->hdr.checkfn = (arg_checkfn*) valid_input_dir;
     input_dir->hdr.errorfn = (arg_errorfn*)dir_error;
-    output_dir->hdr.checkfn = (arg_checkfn*)valid_dir;
+    output_dir->hdr.checkfn = (arg_checkfn*)valid_output_dir;
     output_dir->hdr.errorfn = (arg_errorfn*)dir_error;
 
     int err, exitcode = 0;
@@ -65,12 +75,13 @@ int init_cmd_handle(int argc, char **argv, void **args_table) {
     }
     if (input_dir->count == 0) {
         input_dir->count = 1;
-        input_dir->filename[0] = "input_dir/";
+        input_dir->filename[0] = DEFAULT_INPUT_DIR;
     }
     if (output_dir->count == 0) {
         output_dir->count = 1;
-        output_dir->filename[0] = "output_dir/";
-    }
+        output_dir->filename[0] = DEFAULT_OUTPUT_DIR;
+        mkdir(DEFAULT_OUTPUT_DIR);
+    } else mkdir(output_dir->filename[0]);
 
     exit:
     return exitcode;

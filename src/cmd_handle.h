@@ -2,6 +2,9 @@
 #define CMD_HANDLE
 
 #include <argtable3.h>
+#define DEFAULT_INPUT_DIR "input_dir"
+#define DEFAULT_OUTPUT_DIR "output_dir"
+
 enum {
     TMS_ERR_PATH_STAT_ERR = 1,
     TMS_ERR_PATH_IS_NOT_DIR,
