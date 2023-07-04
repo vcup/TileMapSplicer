@@ -8,6 +8,10 @@ set(CMAKE_C_STANDARD 23)
 find_package(libvips REQUIRED)
 find_package(argtable3 REQUIRED)
 
-add_executable(${PROJECT_NAME} src/main.c)
+set(SRC_DIR "src/")
+file(STRINGS srcfile.list SRCFILELIST)
+list(TRANSFORM SRCFILELIST PREPEND ${SRC_DIR})
+add_executable(${PROJECT_NAME} ${SRCFILELIST})
+
 target_link_libraries(${PROJECT_NAME} libvips::libvips)
 target_link_libraries(${PROJECT_NAME} argtable3::argtable3)
