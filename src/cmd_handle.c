@@ -10,20 +10,20 @@ struct arg_end *end;
 int valid_input_dir(struct arg_file *path) {
     if (path->count == 0) return 0;
 
-    struct stat dirStat;
-    int ret = stat(path->filename[0], &dirStat);
+    struct stat path_stat;
+    int ret = stat(path->filename[0], &path_stat);
     if (ret < 0) return TMS_ERR_PATH_STAT_ERR;
-    if (S_ISDIR(dirStat.st_mode)) return 0;
+    if (S_ISDIR(path_stat.st_mode)) return 0;
 
     return TMS_ERR_PATH_IS_NOT_DIR;
 }
 int valid_output_dir(struct arg_file *path) {
     if (path->count == 0) return 0;
 
-    struct stat dirStat;
-    int ret = stat(path->filename[0], &dirStat);
+    struct stat path_stat;
+    int ret = stat(path->filename[0], &path_stat);
     if (ret < 0 && errno != ENOENT) return TMS_ERR_PATH_STAT_ERR;
-    if (errno == ENOENT || S_ISDIR(dirStat.st_mode)) return 0;
+    if (errno == ENOENT || S_ISDIR(path_stat.st_mode)) return 0;
 
     return TMS_ERR_PATH_IS_NOT_DIR;
 }
