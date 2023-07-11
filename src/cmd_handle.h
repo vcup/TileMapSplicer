@@ -1,5 +1,5 @@
-#ifndef CMD_HANDLE
-#define CMD_HANDLE
+#ifndef TILE_MAP_SPLICER_CMD_HANDLE_H
+#define TILE_MAP_SPLICER_CMD_HANDLE_H
 
 #include <argtable3.h>
 #define DEFAULT_INPUT_DIR "input_dir"
@@ -17,4 +17,4 @@ extern struct arg_end *end;
 
 void init_cmd_handle();
 int invoke_cmd(int argc, char **argv);
-#endif
+#endif // TILE_MAP_SPLICER_CMD_HANDLE_H
