@@ -9,12 +9,12 @@ int main(int argc, char **argv) {
         output_dir = arg_file0(NULL, NULL, "<output_dir>", "write result , default: ./output"),
         end = arg_end(20),
     };
-    int exitcode = init_cmd_handle(argc, argv, args_table);
+    init_cmd_handle();
+    const int exitcode = invoke_cmd(argc, argv);
     if (exitcode) goto exit;
-
-    printf("Hello, World!\n");
 
     exit:
     arg_freetable(args_table, sizeof(args_table) / sizeof(args_table[0]));
+    arg_cmd_uninit();
     return exitcode;
 }

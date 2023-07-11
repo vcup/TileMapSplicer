@@ -54,25 +54,61 @@ void dir_error(struct arg_file *path, arg_dstr_t ds, int error, const char* argv
     }
 }
 
-int init_cmd_handle(int argc, char **argv, void **args_table) {
+int handle_cmd_help_and_err(arg_dstr_t res, int argc, char **argv, void **cmd){
+    int err = arg_parse(argc, argv, cmd);
+    if (help->count > 0) {
+        arg_dstr_catf(res, "Usage: %s", argv[0]);
+        arg_print_syntax_ds(res, cmd, "\n");
+        return 0;
+    }
+    if (err > 0) {
+        arg_print_errors_ds(res, end, argv[0]);
+        arg_dstr_catf(res, "Try '%s --help' for more information.\n", argv[0]);
+        return 1;
+    }
+
+    return 0;
+}
+
+int normal_cmd_proc(int argc, char *argv[], arg_dstr_t res) {
+    void *cmd[] = {
+        help,
+        input_dir,
+        output_dir,
+        end,
+    };
+
+    int exitcode = handle_cmd_help_and_err(res, argc, argv, cmd);
+    if (exitcode) goto exit;
+
+    exit:
+    return 0;
+}
+
+int valid_cmd_proc(int argc, char *argv[], arg_dstr_t res) {
+    void *cmd[] = {
+        help,
+        input_dir,
+        end,
+    };
+
+    int exitcode = handle_cmd_help_and_err(res, argc, argv, cmd);
+    if (exitcode) goto exit;
+
+    exit:
+    return 0;
+}
+
+void init_cmd_handle() {
     input_dir->hdr.checkfn = (arg_checkfn*) valid_input_dir;
     input_dir->hdr.errorfn = (arg_errorfn*)dir_error;
     output_dir->hdr.checkfn = (arg_checkfn*)valid_output_dir;
     output_dir->hdr.errorfn = (arg_errorfn*)dir_error;
 
-    int err, exitcode = 0;
-    err = arg_parse(argc, argv, args_table);
-    if (help->count > 0) {
-        printf("Usage: %s", argv[0]);
-        arg_print_syntax(stdout, args_table, "\n");
-        goto exit;
-    }
-    if (err > 0) {
-        arg_print_errors(stdout, end, argv[0]);
-        printf("Try '%s --help' for more information.\n", argv[0]);
-        exitcode = 1;
-        goto exit;
-    }
+    arg_cmd_init();
+    arg_cmd_register("", normal_cmd_proc, "handle input tile, splicer as XYZ format");
+    arg_cmd_register("valid", valid_cmd_proc, "verify input tile png image format only");
+
     if (input_dir->count == 0) {
         input_dir->count = 1;
         input_dir->filename[0] = DEFAULT_INPUT_DIR;
@@ -82,7 +118,32 @@ int init_cmd_handle(int argc, char **argv, void **args_table) {
         output_dir->filename[0] = DEFAULT_OUTPUT_DIR;
         mkdir(DEFAULT_OUTPUT_DIR);
     } else mkdir(output_dir->filename[0]);
+}
 
-    exit:
+int invoke_cmd(int argc, char **argv) {
+    arg_dstr_t res = arg_dstr_create();
+    int exitcode;
+    const char *subcmd;
+    int subcmd_idx = 1;
+    for (; subcmd_idx < argc; subcmd_idx++) {
+        subcmd = argv[subcmd_idx];
+        if (subcmd[0] != '-') break;
+    }
+    const int is_main_cmd = subcmd_idx == argc || (
+        strcmp(subcmd, "valid")
+    );
+    if (is_main_cmd) exitcode = arg_cmd_dispatch("", argc, argv, res);
+    else {
+        char *argv_shifted[argc];
+        for (int i = 0; i < subcmd_idx; ++i) {
+            argv_shifted[i] = argv[i];
+        }
+        for (int i = subcmd_idx + 1; i < argc; i++) {
+            argv_shifted[i - 1] = argv[i];
+        }
+
+        exitcode = arg_cmd_dispatch(subcmd, --argc, argv_shifted, res);
+    }
+
     return exitcode;
 }

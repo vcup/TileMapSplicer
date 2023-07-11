@@ -15,5 +15,6 @@ extern struct arg_lit *help;
 extern struct arg_file *input_dir, *output_dir;
 extern struct arg_end *end;
 
-int init_cmd_handle(int argc, char **argv, void **args_table);
+void init_cmd_handle();
+int invoke_cmd(int argc, char **argv);
 #endif
