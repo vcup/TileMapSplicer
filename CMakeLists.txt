@@ -7,6 +7,7 @@ set(CMAKE_C_STANDARD 23)
 
 find_package(libvips REQUIRED)
 find_package(argtable3 REQUIRED)
+find_package(png REQUIRED)
 
 set(SRC_DIR "src/")
 file(STRINGS srcfile.list SRCFILELIST)
@@ -15,3 +16,4 @@ add_executable(${PROJECT_NAME} ${SRCFILELIST})
 
 target_link_libraries(${PROJECT_NAME} libvips::libvips)
 target_link_libraries(${PROJECT_NAME} argtable3::argtable3)
+target_link_libraries(${PROJECT_NAME} PNG::PNG)

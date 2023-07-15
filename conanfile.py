@@ -6,7 +6,7 @@ class TileMapSplicer(ConanFile):
     name = "TileMapSplicer"
     version = "0.0.0"
     settings = "os", "compiler", "build_type", "arch"
-    requires = "libvips/8.14.2", "argtable3/3.2.2"
+    requires = "libvips/8.14.2", "argtable3/3.2.2", "libpng/1.6.39"
 
     def generate(self):
         toolchain = CMakeToolchain(self)
