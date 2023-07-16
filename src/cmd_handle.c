@@ -2,6 +2,7 @@
 #include <errno.h>
 
 #include "cmd_handle.h"
+#include "verify_png.h"
 
 struct arg_lit *help;
 struct arg_file *input_dir, *output_dir;
@@ -94,6 +95,7 @@ int valid_cmd_proc(int argc, char *argv[], arg_dstr_t res) {
 
     int exitcode = handle_cmd_help_and_err(res, argc, argv, cmd);
     if (exitcode) goto exit;
+    verify_all_png(input_dir->filename[0]);
 
     exit:
     return 0;

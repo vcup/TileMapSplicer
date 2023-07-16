@@ -1,2 +1,3 @@
 main.c
 cmd_handle.c
+verify_png.c
